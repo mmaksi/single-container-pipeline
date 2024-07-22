@@ -1,0 +1,23 @@
+name: Run tests on merged code before deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t markmaksi/react-app -f Dockerfile.dev .
+
+      - name: Run tests
+        run: docker run -e CI=true markmaksi/react-app npm run test
